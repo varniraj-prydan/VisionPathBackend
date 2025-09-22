@@ -3,13 +3,14 @@ import uuid
 from datetime import datetime
 import os
 
-# Initialize Firestore client with explicit project ID
-project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
-print(f"[FIRESTORE] Project ID from env: {project_id}")
+# Initialize Firestore client
+project_id = os.getenv("GOOGLE_CLOUD_PROJECT", "seventh-league-472711-a6")
+print(f"[FIRESTORE] Project ID: {project_id}")
 
 try:
-    db = firestore.Client(project=project_id) if project_id else None
-    print(f"[FIRESTORE] Client initialized: {db is not None}")
+    # In Cloud Run, use default credentials
+    db = firestore.Client(project=project_id)
+    print(f"[FIRESTORE] Client initialized successfully")
 except Exception as e:
     print(f"[FIRESTORE] Client initialization failed: {e}")
     db = None
