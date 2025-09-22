@@ -1,19 +1,5 @@
 steps:
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-f', 'Dockerfile.minimal', '-t', 'gcr.io/$PROJECT_ID/voice-learning-tutor', '.']
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/voice-learning-tutor']
-  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk:slim'
-    entrypoint: gcloud
-    args:
-    - 'run'
-    - 'deploy'
-    - 'visionpathbackend'
-    - '--image=gcr.io/$PROJECT_ID/voice-learning-tutor'
-    - '--region=us-central1'
-    - '--platform=managed'
-    - '--allow-unauthenticated'
-    - '--memory=512Mi'
-    - '--timeout=60'
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/voice-learning-tutor', '.']
 images:
   - 'gcr.io/$PROJECT_ID/voice-learning-tutor'
