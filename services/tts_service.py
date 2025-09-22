@@ -1,8 +1,10 @@
 from google.cloud import texttospeech
 import os
+from .auth_service import get_credentials
 
 def generate_audio(text):
-    client = texttospeech.TextToSpeechClient()
+    credentials = get_credentials()
+    client = texttospeech.TextToSpeechClient(credentials=credentials) if credentials else texttospeech.TextToSpeechClient()
     
     synthesis_input = texttospeech.SynthesisInput(text=text)
     voice = texttospeech.VoiceSelectionParams(

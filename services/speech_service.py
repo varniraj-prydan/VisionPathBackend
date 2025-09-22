@@ -1,7 +1,9 @@
 from google.cloud import speech
+from .auth_service import get_credentials
 
 def transcribe_audio(audio_bytes):
-    client = speech.SpeechClient()
+    credentials = get_credentials()
+    client = speech.SpeechClient(credentials=credentials) if credentials else speech.SpeechClient()
     
     print(f"[SPEECH] Processing {len(audio_bytes)} bytes")
     

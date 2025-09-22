@@ -2,14 +2,15 @@ from google.cloud import firestore
 import uuid
 from datetime import datetime
 import os
+from .auth_service import get_credentials
 
 # Initialize Firestore client
 project_id = os.getenv("GOOGLE_CLOUD_PROJECT", "seventh-league-472711-a6")
 print(f"[FIRESTORE] Project ID: {project_id}")
 
 try:
-    # In Cloud Run, use default credentials (no local JSON file needed)
-    db = firestore.Client(project=project_id)
+    credentials = get_credentials()
+    db = firestore.Client(project=project_id, credentials=credentials) if credentials else firestore.Client(project=project_id)
     print(f"[FIRESTORE] Client initialized successfully")
 except Exception as e:
     print(f"[FIRESTORE] Client initialization failed: {e}")

@@ -2,13 +2,18 @@ import vertexai
 from vertexai.generative_models import GenerativeModel
 import json
 import os
+from .auth_service import get_credentials
 
 def generate_roadmap(learning_summary):
     project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
     if not project_id:
         raise Exception("GOOGLE_CLOUD_PROJECT not configured")
         
-    vertexai.init(project=project_id, location="us-central1")
+    credentials = get_credentials()
+    if credentials:
+        vertexai.init(project=project_id, location="us-central1", credentials=credentials)
+    else:
+        vertexai.init(project=project_id, location="us-central1")
     
     model = GenerativeModel("gemini-2.5-flash-lite")
     
@@ -77,7 +82,11 @@ def get_gemini_response(prompt):
         if not project_id:
             return "I'm having trouble connecting. Could you please repeat that?"
             
-        vertexai.init(project=project_id, location="us-central1")
+        credentials = get_credentials()
+        if credentials:
+            vertexai.init(project=project_id, location="us-central1", credentials=credentials)
+        else:
+            vertexai.init(project=project_id, location="us-central1")
         
         model = GenerativeModel("gemini-2.5-flash-lite")
         response = model.generate_content(prompt)
