@@ -8,11 +8,12 @@ project_id = os.getenv("GOOGLE_CLOUD_PROJECT", "seventh-league-472711-a6")
 print(f"[FIRESTORE] Project ID: {project_id}")
 
 try:
-    # In Cloud Run, use default credentials
+    # In Cloud Run, use default credentials (no local JSON file needed)
     db = firestore.Client(project=project_id)
     print(f"[FIRESTORE] Client initialized successfully")
 except Exception as e:
     print(f"[FIRESTORE] Client initialization failed: {e}")
+    print(f"[FIRESTORE] Continuing without database for demo purposes")
     db = None
 
 def save_roadmap(topic, description, roadmap_json, summary=None, summary_audio_path=None):
