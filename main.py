@@ -9,15 +9,34 @@ from services.gemini_service import generate_roadmap
 from services.tts_service import generate_audio
 from services.firestore_service import save_roadmap, get_lesson, get_all_roadmaps, get_single_roadmap
 from services.session_service import create_session, add_audio_to_session, cleanup_session
-from services.welcome_service import create_welcome_session, process_welcome_input, generate_roadmap_from_session
+# Import welcome service with error handling
+try:
+    from services.welcome_service import create_welcome_session, process_welcome_input, generate_roadmap_from_session
+    WELCOME_SERVICE_AVAILABLE = True
+except ImportError as e:
+    print(f"[WARN] Welcome service not available: {e}")
+    WELCOME_SERVICE_AVAILABLE = False
 
-load_dotenv()
+# Only load .env in local development
+if os.path.exists('.env'):
+    load_dotenv()
+    print("[ENV] Loaded .env file")
+else:
+    print("[ENV] No .env file found, using environment variables")
 
 # Debug environment variables
-print(f"[ENV] GOOGLE_APPLICATION_CREDENTIALS: {os.getenv('GOOGLE_APPLICATION_CREDENTIALS')}")
 print(f"[ENV] GOOGLE_CLOUD_PROJECT: {os.getenv('GOOGLE_CLOUD_PROJECT')}")
+print(f"[ENV] PORT: {os.getenv('PORT', '8000')}")
 
 app = FastAPI(title="Voice Learning Tutor API")
+
+@app.get("/")
+async def health_check():
+    return {"status": "healthy", "service": "Voice Learning Tutor API"}
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
 
 # Add CORS middleware
 app.add_middleware(
@@ -160,6 +179,8 @@ async def get_roadmap_summary_audio(roadmap_id: str):
 
 @app.post("/welcome/start")
 async def start_welcome_session():
+    if not WELCOME_SERVICE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Welcome service not available")
     try:
         guest_id, welcome_message, audio_url = create_welcome_session()
         return {
@@ -172,6 +193,8 @@ async def start_welcome_session():
 
 @app.post("/welcome/chat")
 async def welcome_chat(request: WelcomeRequest):
+    if not WELCOME_SERVICE_AVAILABLE:
+        raise HTTPException(status_code=503, detail="Welcome service not available")
     try:
         result = process_welcome_input(request.guest_id, request.user_input)
         return result
