@@ -24,19 +24,39 @@ if os.path.exists('.env'):
 else:
     print("[ENV] No .env file found, using environment variables")
 
+# Cloud Run environment detection
+IS_CLOUD_RUN = os.getenv('K_SERVICE') is not None
+print(f"[ENV] Running on Cloud Run: {IS_CLOUD_RUN}")
+
 # Debug environment variables
 print(f"[ENV] GOOGLE_CLOUD_PROJECT: {os.getenv('GOOGLE_CLOUD_PROJECT')}")
 print(f"[ENV] PORT: {os.getenv('PORT', '8000')}")
+if IS_CLOUD_RUN:
+    print(f"[ENV] K_SERVICE: {os.getenv('K_SERVICE')}")
+    print(f"[ENV] K_REVISION: {os.getenv('K_REVISION')}")
 
 app = FastAPI(title="Voice Learning Tutor API")
 
 @app.get("/")
 async def health_check():
-    return {"status": "healthy", "service": "Voice Learning Tutor API"}
+    return {
+        "status": "healthy", 
+        "service": "Voice Learning Tutor API",
+        "environment": "cloud-run" if IS_CLOUD_RUN else "local",
+        "version": "1.0.0"
+    }
 
 @app.get("/health")
 async def health():
-    return {"status": "ok"}
+    return {"status": "ok", "timestamp": os.getenv('K_REVISION', 'local')}
+
+@app.get("/readiness")
+async def readiness():
+    return {"status": "ready"}
+
+@app.get("/liveness")
+async def liveness():
+    return {"status": "alive"}
 
 # Add CORS middleware
 app.add_middleware(
